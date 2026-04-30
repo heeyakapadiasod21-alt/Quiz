@@ -1,141 +1,744 @@
-/* 
-   =========================================
-   1. BASIC SETUP & RESET
-   ========================================= 
-   This ensures standard spacing across all browsers.
-*/
+/* ============================================================
+   Quiz.css  —  All styles for BrainZap Quiz
+   Linked from Quiz.html via:
+       <link rel="stylesheet" href="Quiz.css">
+   ============================================================ */
+
+/* ── DESIGN TOKENS ─────────────────────────────────────────── */
+:root {
+    --bg: #faf7f2;
+    --bg2: #f2ede4;
+    --card: #ffffff;
+    --card2: #f7f3ec;
+    --accent: #e8490f;
+    --accent2: #2563d4;
+    --accent3: #16a34a;
+    --ink: #1a1510;
+    --ink2: #3d3629;
+    --muted: #8c7e6e;
+    --border: rgba(26, 21, 16, 0.1);
+    --border-strong: rgba(26, 21, 16, 0.2);
+    --radius: 18px;
+    --correct: #16a34a;
+    --wrong: #dc2626;
+    --shadow: 0 2px 24px rgba(26, 21, 16, 0.08), 0 1px 4px rgba(26, 21, 16, 0.06);
+    --shadow-hover: 0 8px 40px rgba(26, 21, 16, 0.14), 0 2px 8px rgba(26, 21, 16, 0.08);
+}
+
+/* ── RESET: every element uses border-box sizing and has no default spacing ── */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Includes padding and borders in element's total width and height */
 }
 
-/* Base styles for the entire page */
+/* ── ROOT LOCK: html + body are locked to exactly the viewport height.
+     overflow:hidden on BOTH prevents ANY page-level scrolling.
+     height:100dvh uses the dynamic viewport height (accounts for
+     mobile browser chrome appearing/disappearing). ── */
+html {
+    height: 100dvh;
+    overflow: hidden;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333333;
-    background-color: #f7f9fc;
-    
-    /* Using Flexbox to arrange main sections in a vertical column */
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    /* Lock body to exactly one screen tall — no scrollbar ever appears */
+    height: 100dvh;
+    overflow: hidden;  /* surplus content is clipped, not scrolled */
+    position: relative;
+}
+
+/* Subtle paper texture overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(232, 73, 15, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(37, 99, 212, 0.04) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Decorative top rainbow bar */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: linear-gradient(90deg, var(--accent), #f97316, #eab308, var(--accent2));
+    z-index: 100;
+}
+
+#app {
+    position: relative;
+    z-index: 1;
+}
+
+/* ─── SPLASH SCREEN ───
+     Fills the entire viewport (100dvh) so nothing underneath peeks out.
+     overflow-y:auto lets the content scroll INSIDE this panel only
+     if the device is very short — the outer page itself never scrolls. ── */
+#splash {
+    height: 100dvh;          /* exact viewport height — no more, no less */
+    overflow-y: auto;        /* internal scroll only when content is taller than screen */
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Ensures the body covers at least the full height of the viewport */
-}
-
-/* 
-   =========================================
-   2. PAGE SECTIONS (Header, Main, Footer)
-   ========================================= 
-*/
-
-header {
-    background-color: #ffffff;
-    color: #2c3e50;
-    text-align: center;
-    padding: 2.5rem 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Soft shadow below the header */
-}
-
-/* Main container holding the image and text */
-main {
-    flex: 1; /* This pushes the footer to the bottom if content is short */
-    width: 100%;
-    max-width: 1200px; /* Limits how wide the content gets on huge screens */
-    margin: 0 auto; /* Centers the main block itself */
-    padding: 3rem 1rem;
-}
-
-footer {
-    background-color: #2c3e50;
-    color: #ffffff;
-    text-align: center;
-    padding: 1.5rem;
-    margin-top: auto; /* Stick to bottom of flex container */
-}
-
-/* 
-   =========================================
-   3. RESPONSIVE IMAGE CONTAINER
-   ========================================= 
-*/
-.image-container {
-    /* Center the SVG within this section */
-    display: flex;
-    justify-content: center;
     align-items: center;
-    margin-bottom: 3rem;
-    
-    background: #ffffff;
-    padding: 1.5rem;
-    border-radius: 12px; /* Smooth rounded corners */
-    box-shadow: 0 8px 16px rgba(0,0,0,0.08); /* A nice floating effect */
-}
-
-/* 
-   The most important class for making the SVG scale properly!
-*/
-.responsive-svg {
-    width: 100%; /* Expands to fill the container */
-    max-width: 100%; /* Prevents the image from overflowing its parent */
-    height: auto; /* Scales the height proportionally to the width */
-    display: block; /* Removes any tiny ghost spaces beneath the image */
-}
-
-/* 
-   =========================================
-   4. TEXT CONTENT
-   ========================================= 
-*/
-.content-section {
+    justify-content: center;
     text-align: center;
-    max-width: 800px; /* Don't let the text get too wide to read easily */
-    margin: 0 auto; /* Centers the section box itself horizontally */
-    background: #ffffff;
-    padding: 2.5rem;
+    padding: 60px 24px;
+}
+
+.splash-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #F7F3EC;
+    border: 1px solid rgba(26, 21, 16, 0.1);
+    border-radius: 999px;
+    padding: 7px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #1A1510;
+    margin-bottom: 32px;
+    box-shadow: inset 0px 4px 4px rgba(61, 54, 41, 0.15);
+    animation: riseIn 0.6s 0.1s both;
+}
+
+.eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+.splash-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(72px, 16vw, 140px);
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -4px;
+    color: var(--ink);
+    animation: riseIn 0.7s 0.25s both;
+    position: relative;
+}
+
+.splash-title .zap {
+    color: var(--accent);
+    display: inline-block;
+    position: relative;
+}
+
+.splash-title .zap::after {
+    content: none;
+}
+
+.splash-tagline {
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--muted);
+    margin-top: 20px;
+    max-width: 400px;
+    line-height: 1.6;
+    animation: riseIn 0.7s 0.4s both;
+}
+
+.splash-divider {
+    width: 60px;
+    height: 2px;
+    background: var(--border-strong);
+    border-radius: 1px;
+    margin: 32px auto;
+    animation: riseIn 0.7s 0.5s both;
+}
+
+.splash-stats {
+    display: flex;
+    gap: 0;
+    margin-bottom: 44px;
+    animation: riseIn 0.7s 0.55s both;
+    background: #F7F3EC;
+    border: 1px solid rgba(26, 21, 16, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: inset 0px 4px 4px rgba(61, 54, 41, 0.15);
+}
+
+.stat {
+    padding: 20px 32px;
+    text-align: center;
+    border-right: 1px solid rgba(26, 21, 16, 0.1);
+}
+
+.stat:last-child {
+    border-right: none;
+}
+
+.stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1A1510;
+    margin-top: 6px;
+    font-style: normal;
+    font-weight: 500;
+}
+
+.btn-start {
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-style: normal;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-transform: none;
+    padding: 18px 56px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    box-shadow: none;
+    transition: box-shadow 0.2s, background 0.15s, color 0.15s;
+    animation: riseIn 0.7s 0.7s both;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-start:hover  { box-shadow: 4px 4px 20px rgba(232, 73, 15, 0.35); }
+.btn-start:active { background: #1a1510; color: #ffffff; box-shadow: none; }
+
+/* ─── QUIZ SCREEN ───
+     Same viewport-lock pattern as splash.
+     overflow-y:auto allows the question card to scroll inside
+     on very small screens without the page itself ever scrolling. ── */
+#quiz-screen {
+    display: none;           /* hidden until startQuiz() is called */
+    height: 100dvh;          /* fill exactly one viewport height */
+    overflow-y: auto;        /* internal scroll only if card content overflows */
+    padding: 36px 20px 80px;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 660px;
+    margin: 0 auto 28px;
+}
+
+.q-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1A1510;
+    font-style: normal;
+}
+
+.score-pill {
+    background: #F7F3EC;
+    border: 1px solid rgba(26, 21, 16, 0.1);
+    border-radius: 999px;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    box-shadow: inset 0px 4px 4px rgba(61, 54, 41, 0.15);
+    font-style: normal;
+}
+
+/* Progress bar — hidden */
+.progress-track { display: none; }
+.progress-fill  { display: none; }
+
+/* Progress dots */
+.progress-dots {
+    display: flex;
+    gap: 6px;
+    max-width: 660px;
+    margin: 10px auto 28px;
+    flex-wrap: wrap;
+}
+
+/* Default: unanswered */
+.dot {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    transition: background 0.4s, border-color 0.4s;
+    min-width: 20px;
+}
+
+/* Current question: orange */
+.dot.active        { background: var(--accent); border-color: var(--accent); }
+/* Answered correctly: green */
+.dot.done-correct  { background: #16A34A; border-color: #16A34A; }
+/* Answered wrongly: red */
+.dot.done-wrong    { background: #DC2626; border-color: #DC2626; }
+
+/* Question card — the main white box */
+.quiz-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 48px 40px;
+    max-width: 660px;
+    margin: 0 auto;
+    box-shadow: var(--shadow);
+    animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Coloured top stripe on the card */
+.quiz-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), #f97316);
+    border-radius: 24px 24px 0 0;
+}
+
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.q-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.difficulty-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-style: normal;
+}
+
+.diff-easy   { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.diff-medium { background: #fef9c3; color: #a16207; border: 1px solid #fde68a; }
+.diff-hard   { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+.q-num-badge {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1A1510;
+    letter-spacing: 0.5px;
+}
+
+/* Question text */
+#question-text {
+    font-size: clamp(19px, 3vw, 23px);
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: 36px;
+    font-style: normal;
+}
+
+/* Options container */
+#options-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ── OPTION BUTTON — DEFAULT state ── */
+.opt-btn {
+    position: relative;
+    background: #F7F3EC;
+    border: 1.5px solid transparent;
+    box-sizing: border-box;
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+    font-family: 'Fraunces', serif;
+    overflow: hidden;
+}
+
+.opt-letter {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #F2EDE4;
+    border: 1.5px solid #E0D9CF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: all 0.2s;
+}
+
+.opt-text {
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--ink2);
+}
+
+/* ── HOVER state ── */
+.opt-btn:hover:not(:disabled) {
+    border-color: #C9C0B3;
+    background: #F7F3EC;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ── CORRECT state ── */
+.opt-btn.correct              { background: #F0FDF4; border: 1.5px solid #BBF7D0; animation: correctBounce 0.5s; }
+.opt-btn.correct::before      { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #BBF7D0; }
+.opt-btn.correct .opt-letter  { background: #DCFCE7; color: #16A34A; border: 1.5px solid #DCFCE7; }
+.opt-btn.correct .opt-text    { color: #16A34A; }
+
+/* ── WRONG state ── */
+.opt-btn.wrong              { background: #FEF2F2; border: 1.5px solid #FECACA; }
+.opt-btn.wrong::before      { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #FECACA; }
+.opt-btn.wrong .opt-letter  { background: #FEE2E2; color: #DC2626; border: 1.5px solid #FECACA; }
+.opt-btn.wrong .opt-text    { color: #DC2626; }
+
+/* ── REVEAL CORRECT (when wrong chosen) ── */
+.opt-btn.reveal-correct              { background: #F0FDF4; border: 1.5px solid #BBF7D0; }
+.opt-btn.reveal-correct::before      { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #BBF7D0; }
+.opt-btn.reveal-correct .opt-letter  { background: #DCFCE7; color: #16A34A; border: 1.5px solid #DCFCE7; }
+.opt-btn.reveal-correct .opt-text    { color: #16A34A; }
+
+.opt-btn:disabled { cursor: default; }
+
+@keyframes correctBounce {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.02) translateX(5px); }
+    100% { transform: translateX(5px); }
+}
+
+/* ── FEEDBACK PANEL ── */
+.feedback-panel {
+    margin-top: 24px;
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    animation: riseIn 0.4s both;
+}
+
+.feedback-panel.show { display: flex; flex-direction: column; }
+
+.feedback-correct { background: #F0FDF4; border: 1.5px solid #BBF7D0; }
+.feedback-wrong   { background: #FEF2F2; border: 1.5px solid #FECACA; }
+
+.feedback-header { display: flex; align-items: center; gap: 12px; }
+.feedback-emoji  { font-size: 26px; }
+
+.feedback-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.feedback-correct .feedback-title { color: #15803D; }
+.feedback-wrong   .feedback-title { color: #DC2626; }
+
+.feedback-fact {
+    font-size: 14px;
+    color: #3D3629;
+    line-height: 1.7;
+    font-weight: 400;
+}
+
+.feedback-fact strong { color: #3D3629; font-weight: 700; }
+
+.feedback-img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-top: 4px;
+}
+
+/* ── NEXT BUTTON ── */
+#next-button {
+    display: none;        /* hidden by default */
+    margin-top: 28px;
+    margin-left: auto;    /* push to the right */
+    background: var(--ink);
+    color: var(--bg);
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 34px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(26, 21, 16, 0.18);
+}
+
+#next-button:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(232, 73, 15, 0.3); }
+
+/* .show class reveals the button as a flex row */
+#next-button.show { display: flex; align-items: center; gap: 8px; }
+
+/* ─── RESULTS SCREEN ───
+     Same viewport-lock pattern — fills one screen, scrolls internally
+     if the review list is long on a small device. ── */
+#result-screen {
+    display: none;           /* hidden until showResults() is called */
+    height: 100dvh;          /* fill exactly one viewport height */
+    overflow-y: auto;        /* internal scroll only when results list overflows */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.result-ring-wrap {
+    position: relative;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    animation: riseIn 0.8s 0.6s both;
+}
+
+.result-ring {
+    width: 156px;
+    height: 156px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--bg2) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 8px var(--card), var(--shadow);
+}
+
+.result-ring::before {
+    content: '';
+    position: absolute;
+    width: 124px;
+    height: 124px;
+    border-radius: 50%;
+    background: var(--card);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.result-score-inner {
+    position: relative;
+    z-index: 1;
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.result-grade {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(34px, 8vw, 60px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    color: var(--accent);
+    animation: riseIn 0.6s 0.2s both;
+}
+
+.result-msg {
+    font-size: 18px;
+    color: #3D3629;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    max-width: 500px;
+    line-height: 1.7;
+    font-style: italic;
+    font-weight: 300;
+    text-align: center;
+    animation: riseIn 0.6s 0.4s both;
+}
+
+.result-breakdown {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0 36px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: riseIn 0.6s 0.8s both;
+}
+
+.rb-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 28px;
+    min-width: 120px;
+    box-shadow: var(--shadow);
+}
+
+.rb-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.rb-label {
+    font-size: 10px;
+    color: #1A1510;
+    margin-top: 4px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-style: normal;
+    font-weight: 500;
+}
+
+.rb-correct .rb-num { color: var(--correct); }
+.rb-wrong   .rb-num { color: var(--wrong); }
+.rb-total   .rb-num { color: var(--accent); }
+
+.q-review {
+    max-width: 660px;
+    margin: 0 auto 40px;
+    width: 100%;
+    animation: riseIn 0.6s 0.95s both;
+}
+
+.review-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    text-align: left;
+    font-style: normal;
+}
+
+.review-items { display: flex; flex-direction: column; gap: 8px; }
+
+.review-item {
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    padding: 14px 18px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    text-align: left;
+    box-shadow: var(--shadow);
 }
 
-.content-section h2 {
-    color: #2980b9; /* A nice highlight color for the heading */
-    margin-bottom: 1rem;
-    font-size: 2rem;
+.review-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+.review-q    { font-size: 13px; font-weight: 500; margin-bottom: 3px; color: var(--ink); }
+.review-a    { font-size: 12px; color: var(--muted); }
+.review-a span { color: var(--correct); font-weight: 600; }
+
+/* ── PLAY AGAIN BUTTON ── */
+.btn-replay {
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-style: normal;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    padding: 18px 56px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    box-shadow: none;
+    transition: box-shadow 0.2s, background 0.15s, color 0.15s;
+    animation: riseIn 0.6s 1.1s both;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.content-section p {
-    font-size: 1.1rem;
-    color: #555555;
+.btn-replay:hover  { box-shadow: 4px 4px 20px rgba(232, 73, 15, 0.35); }
+.btn-replay:active { background: #1a1510; color: #ffffff; box-shadow: none; }
+
+/* ── CONFETTI CANVAS ── */
+#confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
 }
 
-/* 
-   =========================================
-   5. MOBILE RESPONSIVENESS (Media Queries)
-   ========================================= 
-   These rules only activate when the screen is 768 pixels wide or smaller.
-*/
-@media (max-width: 768px) {
-    header {
-        padding: 1.5rem 1rem;
-    }
-    
-    header h1 {
-        font-size: 1.8rem;
+/* ── SHARED ANIMATIONS ── */
+@keyframes riseIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ── RESPONSIVE: small screens ── */
+@media (max-width: 520px) {
+    .quiz-box {
+        padding: 28px 20px 24px;
     }
 
-    main {
-        padding: 1.5rem 1rem;
-    }
-    
-    .content-section {
-        padding: 1.5rem;
+    .quiz-box::before {
+        border-radius: 18px 18px 0 0;
     }
 
-    .content-section h2 {
-        font-size: 1.5rem;
+    .opt-btn {
+        padding: 14px 14px;
     }
-    
-    .content-section p {
-        font-size: 1rem;
+
+    .splash-stats {
+        flex-direction: column;
+    }
+
+    .stat {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .stat:last-child {
+        border-bottom: none;
     }
 }
