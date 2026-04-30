@@ -1,0 +1,141 @@
+/* 
+   =========================================
+   1. BASIC SETUP & RESET
+   ========================================= 
+   This ensures standard spacing across all browsers.
+*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Includes padding and borders in element's total width and height */
+}
+
+/* Base styles for the entire page */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333333;
+    background-color: #f7f9fc;
+    
+    /* Using Flexbox to arrange main sections in a vertical column */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures the body covers at least the full height of the viewport */
+}
+
+/* 
+   =========================================
+   2. PAGE SECTIONS (Header, Main, Footer)
+   ========================================= 
+*/
+
+header {
+    background-color: #ffffff;
+    color: #2c3e50;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Soft shadow below the header */
+}
+
+/* Main container holding the image and text */
+main {
+    flex: 1; /* This pushes the footer to the bottom if content is short */
+    width: 100%;
+    max-width: 1200px; /* Limits how wide the content gets on huge screens */
+    margin: 0 auto; /* Centers the main block itself */
+    padding: 3rem 1rem;
+}
+
+footer {
+    background-color: #2c3e50;
+    color: #ffffff;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: auto; /* Stick to bottom of flex container */
+}
+
+/* 
+   =========================================
+   3. RESPONSIVE IMAGE CONTAINER
+   ========================================= 
+*/
+.image-container {
+    /* Center the SVG within this section */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3rem;
+    
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px; /* Smooth rounded corners */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08); /* A nice floating effect */
+}
+
+/* 
+   The most important class for making the SVG scale properly!
+*/
+.responsive-svg {
+    width: 100%; /* Expands to fill the container */
+    max-width: 100%; /* Prevents the image from overflowing its parent */
+    height: auto; /* Scales the height proportionally to the width */
+    display: block; /* Removes any tiny ghost spaces beneath the image */
+}
+
+/* 
+   =========================================
+   4. TEXT CONTENT
+   ========================================= 
+*/
+.content-section {
+    text-align: center;
+    max-width: 800px; /* Don't let the text get too wide to read easily */
+    margin: 0 auto; /* Centers the section box itself horizontally */
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+.content-section h2 {
+    color: #2980b9; /* A nice highlight color for the heading */
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.content-section p {
+    font-size: 1.1rem;
+    color: #555555;
+}
+
+/* 
+   =========================================
+   5. MOBILE RESPONSIVENESS (Media Queries)
+   ========================================= 
+   These rules only activate when the screen is 768 pixels wide or smaller.
+*/
+@media (max-width: 768px) {
+    header {
+        padding: 1.5rem 1rem;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    main {
+        padding: 1.5rem 1rem;
+    }
+    
+    .content-section {
+        padding: 1.5rem;
+    }
+
+    .content-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .content-section p {
+        font-size: 1rem;
+    }
+}
