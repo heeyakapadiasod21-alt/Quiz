@@ -1,15 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <body>
-  <div>
 
-    <div class="grid-row">
-      <div class="block-card"></div>
-      <div class="block-card"></div>
-      <div class="block-card"></div>
+<head>
+    <!-- Character encoding: ensures all Unicode characters (like emojis) render correctly -->
+    <meta charset="UTF-8">
+    <!-- Viewport: makes the page responsive, ensuring it fits the device screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainZap — The Ultimate Quiz</title>
+    
+    <!-- Google Fonts: importing premium typography (Playfair Display and Fraunces) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&display=swap"
+        rel="stylesheet">
+    
+    <!-- External Stylesheet: all visual design, layout, and animations are kept in Quiz.css -->
+    <link rel="stylesheet" href="Quiz.css">
+</head>
+
+<body>
+    <!-- Confetti Canvas: used by the JavaScript to render celebratory effects on the results page -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Main App Container -->
+    <div id="app">
+
+        <!-- 1. SPLASH SCREEN: The initial landing view with the "Let's Go" button -->
+        <div id="splash">
+            <div class="splash-eyebrow"><span class="eyebrow-dot"></span> 10 Rounds of Fun</div>
+            <h1 class="splash-title">BRAIN<span class="zap">ZAP</span></h1>
+            <p class="splash-tagline">Mix of easy, medium & hard questions.<br>How sharp is your brain today?</p>
+            <div class="splash-divider"></div>
+            
+            <!-- Quick Stats Section -->
+            <div class="splash-stats">
+                <div class="stat">
+                    <div class="stat-num">10</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">3</div>
+                    <div class="stat-label">Difficulty Levels</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">∞</div>
+                    <div class="stat-label">Fun</div>
+                </div>
+            </div>
+            
+            <!-- Start Button: calls startQuiz() in Quiz.js -->
+            <button class="btn-start" onclick="startQuiz()">Let's Go &nbsp;<svg width="18" height="18"
+                    viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    style="display:inline-block;vertical-align:middle;margin-top:-2px">
+                    <line x1="2" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <polyline points="10,3 16,9 10,15" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg></button>
+        </div>
+
+        <!-- 2. QUIZ SCREEN: Where questions and options are displayed -->
+        <div id="quiz-screen">
+            <!-- Header: Current question number and running score -->
+            <div class="top-bar">
+                <div class="q-label" id="q-label">Question 1 of 10</div>
+                <div class="score-pill">Score: <span id="score-display">0</span></div>
+            </div>
+            
+            <!-- Progress Indicators: A horizontal bar and dot markers -->
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-dots" id="progress-dots"></div>
+
+            <!-- Main Question Card -->
+            <div class="quiz-box" id="quiz-box">
+                <div class="q-card-header">
+                    <span class="difficulty-tag" id="diff-tag">Easy</span>
+                    <span class="q-num-badge" id="q-num-badge">01 / 10</span>
+                </div>
+                
+                <!-- Placeholders: populated dynamically by the JavaScript -->
+                <h1 id="question-text">Question text here</h1>
+                <div id="options-area"></div>
+                
+                <!-- Feedback Panel: appears after an answer is selected -->
+                <div class="feedback-panel" id="feedback-panel">
+                    <div class="feedback-header">
+                        <span class="feedback-emoji" id="fb-emoji">🎉</span>
+                        <span class="feedback-title" id="fb-title">Correct!</span>
+                    </div>
+                    <div class="feedback-fact" id="fb-fact"></div>
+                    <img id="fb-img" class="feedback-img" src="" alt="" style="display:none">
+                </div>
+                
+                <!-- Navigation: moves to the next question -->
+                <button id="next-button" onclick="goToNext()">Next Question &nbsp;<svg width="18"
+                        height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        style="display:inline-block;vertical-align:middle;margin-top:-2px">
+                        <line x1="2" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
+                        <polyline points="10,3 16,9 10,15" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg></button>
+            </div>
+        </div>
+
+        <!-- 3. RESULTS SCREEN: Final score display and summary -->
+        <div id="result-screen">
+            <div class="result-grade" id="result-grade">Congratulations!! 🥳</div>
+            <div class="result-msg" id="result-msg">Hey, you learned some cool facts today<br>Here’s your result</div>
+            
+            <!-- Animated Score Ring -->
+            <div class="result-ring-wrap">
+                <div class="result-ring" id="result-ring">
+                    <div class="result-score-inner" id="result-score-inner">0/10</div>
+                </div>
+            </div>
+            
+            <!-- Breakdown Cards: Correct vs Incorrect count -->
+            <div class="result-breakdown">
+                <div class="rb-card rb-correct">
+                    <div class="rb-num" id="rb-correct">0</div>
+                    <div class="rb-label">Correct Answers</div>
+                </div>
+                <div class="rb-card rb-wrong">
+                    <div class="rb-num" id="rb-wrong">0</div>
+                    <div class="rb-label">Incorrect Answers</div>
+                </div>
+            </div>
+            
+            <!-- Restart Button: resets state and starts over -->
+            <button class="btn-replay" onclick="replay()">Play Again &nbsp;<svg width="18" height="18"
+                    viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    style="display:inline-block;vertical-align:middle;margin-top:-2px">
+                    <path d="M14 9A5 5 0 1 1 9 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <polyline points="9,1 9,4 12,4" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg></button>
+        </div>
     </div>
 
-      </div>
+    <!-- External JavaScript: contains the data array and all application logic -->
+    <script src="Quiz.js"></script>
 </body>
+
 </html>
